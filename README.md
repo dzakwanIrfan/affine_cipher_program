@@ -18,7 +18,7 @@ Proyek ini adalah implementasi dari program Affine Cipher sebagai tugas kelompok
 1. **Clone Repository**: 
    ```bash
    git clone <repository_url>
-   cd affine-cipher
+   cd affine_cipher_program
    ```
 
 2. **Instalasi Dependencies**:
