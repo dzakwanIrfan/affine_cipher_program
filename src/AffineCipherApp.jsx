@@ -3,30 +3,41 @@ import { useState } from 'react';
 
 // Komponen untuk menampilkan tabel konversi huruf-angka
 const AlphabetTable = () => {
-  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
   
-  return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full border-collapse">
-        <tbody>
-          <tr>
-            {alphabet.map((letter) => (
-              <th key={letter} className="border border-gray-300 px-3 py-2 bg-gray-50">
-                {letter}
-              </th>
-            ))}
-          </tr>
-          <tr>
-            {alphabet.map((_, index) => (
-              <td key={index} className="border border-gray-300 px-3 py-2 text-center">
-                {index}
-              </td>
-            ))}
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  );
+    return (
+      <div className="overflow-x-auto">
+        <table className="min-w-full border-collapse">
+          <tbody>
+            <tr>
+              {alphabet.map((letter) => (
+                <th
+                  key={letter}
+                  className="border border-gray-300 px-3 py-2 bg-gray-50 text-sm md:text-base"
+                >
+                  {letter}
+                </th>
+              ))}
+            </tr>
+            <tr>
+              {alphabet.map((_, index) => (
+                <td
+                  key={index}
+                  className="border border-gray-300 px-3 py-2 text-center text-sm md:text-base"
+                >
+                  {index}
+                </td>
+              ))}
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    );
+};
+
+// Fungsi untuk menangani modulo dengan benar untuk angka negatif
+const mod = (n, m) => {
+    return ((n % m) + m) % m;
 };
 
 // Komponen untuk menampilkan rumus
@@ -91,7 +102,7 @@ const modInverse = (a, m) => {
 const AffineCipherApp = () => {
   const [text, setText] = useState('');
   const [a, setA] = useState(5);
-  const [b, setB] = useState(8);
+  const [b, setB] = useState(-3);
   const [mode, setMode] = useState('encrypt');
   const [steps, setSteps] = useState([]);
   const [result, setResult] = useState('');
@@ -102,7 +113,7 @@ const AffineCipherApp = () => {
       setError('Mohon masukkan teks');
       return false;
     }
-    if (gcd(a, 26) !== 1) {
+    if (gcd(Math.abs(a), 26) !== 1) {
       setError('Nilai A harus koprime dengan 26 (GCD(a,26) = 1)');
       return false;
     }
@@ -123,7 +134,8 @@ const AffineCipherApp = () => {
         
         let result;
         if (mode === 'encrypt') {
-          result = (a * x + b) % 26;
+          // Gunakan fungsi mod untuk menangani hasil negatif
+          result = mod((a * x + b), 26);
           newSteps.push({
             char,
             step: 1,
@@ -132,12 +144,13 @@ const AffineCipherApp = () => {
           });
         } else {
           const aInverse = modInverse(a, 26);
-          result = (aInverse * (x - b + 26)) % 26;
+          // Gunakan fungsi mod untuk menangani hasil negatif
+          result = mod((aInverse * (x - b)), 26);
           newSteps.push({
             char,
             step: 1,
             desc: `Karakter '${char}' (${x}):`,
-            calc: `${aInverse} × (${x} - ${b} + 26) mod 26 = ${result}`
+            calc: `${aInverse} × (${x} - ${b}) mod 26 = ${result}`
           });
         }
 
@@ -155,17 +168,19 @@ const AffineCipherApp = () => {
   };
 
   return (
-    <div className="min-h-screen py-8 px-4 mt-20">
+    <div className="min-h-screen py-8 px-4 md:px-8 mt-20">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-center mb-8 text-indigo-600">
+        <h1 className="text-3xl md:text-4xl font-bold text-center mb-8 text-indigo-600">
           Affine Cipher Program
         </h1>
-
+  
         <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-          <h2 className="text-xl font-semibold mb-4">Tabel Konversi Huruf-Angka:</h2>
+          <h2 className="text-xl md:text-2xl font-semibold mb-4">
+            Tabel Konversi Huruf-Angka:
+          </h2>
           <AlphabetTable />
         </div>
-        
+  
         <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
@@ -182,7 +197,7 @@ const AffineCipherApp = () => {
                   <option value="decrypt">Dekripsi</option>
                 </select>
               </div>
-              
+  
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Teks {mode === 'encrypt' ? 'Plain' : 'Cipher'}
@@ -196,7 +211,7 @@ const AffineCipherApp = () => {
                 />
               </div>
             </div>
-            
+  
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -209,7 +224,7 @@ const AffineCipherApp = () => {
                   className="w-full p-2 border rounded-md"
                 />
               </div>
-              
+  
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Nilai B
@@ -223,37 +238,33 @@ const AffineCipherApp = () => {
               </div>
             </div>
           </div>
-          
+  
           <button
             onClick={processText}
             className="w-full mt-6 bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition-colors"
           >
             {mode === 'encrypt' ? 'Enkripsi' : 'Dekripsi'}
           </button>
-          
+  
           {error && (
             <div className="mt-4 p-3 bg-red-100 text-red-700 rounded-md">
               {error}
             </div>
           )}
         </div>
-
-        {(text && !error) && (
-          <FormulaDisplay mode={mode} a={a} b={b} />
-        )}
-
+  
+        {text && !error && <FormulaDisplay mode={mode} a={a} b={b} />}
+  
         {result && (
           <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-            <h2 className="text-xl font-semibold mb-4">Hasil:</h2>
-            <div className="p-4 bg-gray-100 rounded-md font-mono">
-              {result}
-            </div>
+            <h2 className="text-xl md:text-2xl font-semibold mb-4">Hasil:</h2>
+            <div className="p-4 bg-gray-100 rounded-md font-mono">{result}</div>
           </div>
         )}
-
+  
         {steps.length > 0 && (
           <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">Langkah-langkah:</h2>
+            <h2 className="text-xl md:text-2xl font-semibold mb-4">Langkah-langkah:</h2>
             <div className="space-y-4">
               {steps.map((step, idx) => (
                 <div key={idx} className="p-4 bg-gray-100 rounded-md">
@@ -269,7 +280,7 @@ const AffineCipherApp = () => {
         )}
       </div>
     </div>
-  );
+  );  
 };
 
 export default AffineCipherApp;
