@@ -16,7 +16,7 @@ function NavList() {
         color="blue-gray"
         className="p-1 font-medium"
       >
-        <a target="_blank" href="https://www.instagram.com/dzakonee/" className="flex items-center hover:text-indigo-600 transition-colors">
+        <a target="_blank" href="https://www.instagram.com/dzakwanirfann/" className="flex items-center hover:text-indigo-600 transition-colors">
           Dzakwan
         </a>
       </Typography>
